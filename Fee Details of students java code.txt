@@ -1,0 +1,15 @@
+@Service
+public class FeeService {
+    @Autowired
+    private FeeRepository feeRepository;
+
+    public void displayFeeDetails(Student student) {
+        List<Fee> fees = feeRepository.findByStudentId(student.getId());
+
+        System.out.println("Fee Details:");
+        for (Fee fee : fees) {
+            String status = fee.isPaid() ? "Paid" : "Pending";
+            System.out.println(String.format("Fee ID: %d | Amount: %.2f | Status: %s", fee.getId(), fee.getAmount(), status));
+        }
+    }
+}
