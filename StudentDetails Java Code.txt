@@ -1,0 +1,19 @@
+@Service
+public class StudentDetailsService implements UserDetailsService {
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Student student = studentRepository.findByEmail(email);
+
+        if (student == null) {
+            throw new UsernameNotFoundException("Student not found");
+        }
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+        return new User(student.getEmail(), student.getPassword(), authorities);
+    }
+}

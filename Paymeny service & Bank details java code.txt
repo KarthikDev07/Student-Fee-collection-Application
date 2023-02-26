@@ -1,0 +1,58 @@
+@Entity
+@Table(name = "payments")
+public class Payment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student student;
+
+    private BigDecimal amount;
+
+    @Column(name = "account_number")
+    private String accountNumber;
+
+    @Column(name = "bank_name")
+    private String bankName;
+
+    @Column(name = "ifsc_code")
+    private String ifscCode;
+
+    @Column(name = "payment_date")
+    private LocalDateTime paymentDate;
+
+    // getters and setters
+}
+@Service
+public class PaymentService {
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    public void acceptPaymentDetails(Student student, BigDecimal amount, String accountNumber, String bankName, String ifscCode) {
+        Payment payment = new Payment();
+        payment.setStudent(student);
+        payment.setAmount(amount);
+        payment.setAccountNumber(accountNumber);
+        payment.setBankName(bankName);
+        payment.setIfscCode(ifscCode);
+        payment.setPaymentDate(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+
+        sendPaymentConfirmationEmail(student.getEmail(), amount);
+    }
+
+    private void sendPaymentConfirmationEmail(String to, BigDecimal amount) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Payment Successful");
+        message.setText(String.format("Your payment of %.2f has been successfully received.", amount));
+
+        mailSender.send(message);
+    }
+}
